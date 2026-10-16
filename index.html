@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-TRAITANT</title>
+<style>
+:root{--bg:#eef1ee;--panel:#fff;--ink:#17252a;--muted:#5d6e72;--line:#cfd8d6;--accent:#0e5a5f;--accent-ink:#fff;--gain:#1f6b3a;--loss:#9b2c2c;--soft:#e3ece9}
+@media (prefers-color-scheme:dark){:root{--bg:#12191b;--panel:#1a2427;--ink:#e6eeee;--muted:#9bb0b3;--line:#2c3a3d;--accent:#5fc2c8;--accent-ink:#0b1416;--gain:#7fd49a;--loss:#f19a9a;--soft:#223034}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Segoe UI","Noto Sans Arabic",Tahoma,sans-serif}
+header,main{max-width:1150px;margin:0 auto;padding:0 20px}
+header{padding-top:24px}h1{margin:0;font-size:24px}
+header p{margin:2px 0 0;color:var(--muted)}
+[hidden]{display:none!important}
+.langs{display:flex;gap:4px;margin-bottom:8px}
+button.lg{background:transparent;color:var(--accent);padding:1px 8px;min-height:24px;font-size:12px;border-radius:5px}
+button.lg.on{background:var(--accent);color:var(--accent-ink)}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+button.tab{flex:1;background:transparent;color:var(--accent);font-weight:700;padding:8px 12px;letter-spacing:.5px}
+button.tab.on{background:var(--accent);color:var(--accent-ink)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin:14px 0}
+h2{margin:0 0 6px;font-size:17px}h3{margin:14px 0 4px;font-size:15px}
+.hint,.msg{color:var(--muted);font-size:13.5px;margin:0 0 8px}.ok{color:var(--gain)}.err{color:var(--loss)}
+textarea{width:100%;min-height:90px;direction:ltr;font:12px/1.4 Consolas,monospace;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+input,select,button{font:inherit;color:inherit}
+input[type=text],input[type=number],input[type=date],select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+input[type=number]{width:90px;direction:ltr;text-align:left}
+button{cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:6px 14px;border-radius:6px}
+button.ghost{background:transparent;color:var(--accent)}button.del{border-color:var(--loss);color:var(--loss);background:transparent;padding:2px 10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+th{background:var(--soft);font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:left;direction:ltr;white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.off td{opacity:.45}tr.tot td{font-weight:700;background:var(--soft)}
+.el{display:inline-flex;gap:3px;align-items:center;margin-inline-end:10px;white-space:nowrap}
+.tag{font-size:12px;background:var(--soft);border-radius:10px;padding:0 8px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:8px 0}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--bg)}
+.card small{color:var(--muted)}.card b{display:block;font-size:20px;direction:ltr;font-variant-numeric:tabular-nums}
+html[dir=rtl] .card b{text-align:right}html[dir=ltr] .card b{text-align:left}
+.big{border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px;margin:8px 0}
+.bt{position:relative;background:var(--bg);color:var(--ink);border:1px solid var(--line);min-height:46px;font-weight:600;padding:0}
+.bt.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.bt.emp:not(.on){opacity:.55}
+.bt i{position:absolute;top:5px;inset-inline-end:5px;width:8px;height:8px;border-radius:50%;background:var(--loss)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:7px 13px;min-height:40px}
+.chip.on{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.bc,.jc{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--bg)}
+.bh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.pr{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.pr input{width:120px}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line)}
+details summary{cursor:pointer;font-weight:600;padding:6px 0}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.dlg{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:18px;width:100%;max-width:360px}
+.dlg p{margin:0 0 10px}.dlg input{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);text-align:left}
+@media (max-width:640px){
+ header,main{padding-inline:10px}section{padding:12px}
+ input,select,textarea{font-size:16px}
+ button{min-height:44px}
+ .row>button,.row>input[type=text]{flex:1 1 100%}
+ .row>label{flex:1 1 100%;display:flex;flex-direction:column;gap:2px}
+ .row select,.row input[type=date]{width:100%;min-height:42px}
+ .cards{grid-template-columns:1fr}
+ .card b{font-size:22px}
+ button.lg{min-height:28px}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="langs" role="group" aria-label="Language">
+<button class="lg" data-lang="ar">العربية</button><button class="lg" data-lang="fr">Français</button><button class="lg" data-lang="tr">Türkçe</button>
+</div>
+<div class="tabs" role="group" aria-label="Interface"><button class="tab" data-tab="st">SOUS-TRAITANT</button><button class="tab" data-tab="fa">FACTURATION</button></div>
+<h1 data-i="title" data-i-fa="titleFa"></h1><p data-i="sub"></p></header>
+<main>
+
+<section>
+<h2 data-i="h1"></h2>
+<p class="hint" data-i="hint1"></p>
+<div class="row"><button id="fetchbtn" data-i="fetch"></button></div>
+<p id="status" class="msg"></p>
+<details><summary data-i="manual"></summary>
+<textarea id="raw" placeholder="BLOC&#9;NOMBRE&#9;DBS4-F1 ..."></textarea>
+<div class="row"><button id="parse" data-i="parse"></button><button class="ghost" id="pick" data-i="upload"></button><input type="file" id="file" accept=".csv,.tsv,.txt" hidden></div>
+</details>
+<details id="apisec"><summary data-i="hApi"></summary>
+<p class="hint" data-i="apiHint"></p>
+<div class="row"><label><span data-i="apiUrl"></span><input type="text" id="apiurl" dir="ltr" style="min-width:260px"></label>
+<label><span data-i="apiToken"></span><input type="password" id="apitok" dir="ltr"></label>
+<button id="apisave" data-i="apiSave"></button></div>
+</details>
+</section>
+
+<section>
+<h2 data-i="h2" data-i-fa="h2Fa"></h2>
+<div class="row">
+<label><span data-i="project"></span> <select id="proj"></select></label>
+<label id="ctrlbl"><span data-i="contractor"></span> <select id="ctr"></select></label>
+<input type="text" id="cname" data-ip="newc"><button class="ghost" id="cadd" data-i="add"></button>
+<button class="del" id="cdel" data-i="delc"></button>
+</div>
+</section>
+
+<section id="cfgsec">
+<h2 data-i="h3"></h2>
+<h3 data-i="prices"></h3>
+<div id="prices" class="plist"></div>
+<h3><span data-i="pcts" data-i-fa="pctsFa"></span> <span id="pctchk" class="msg"></span></h3>
+<div id="pcts" class="plist"></div>
+<p class="hint" data-i="hintpct"></p>
+</section>
+
+<section>
+<h2 data-i="h4"></h2>
+<p class="hint" data-i="hint4" data-i-fa="hint4Fa"></p>
+<div id="grid" class="grid"></div>
+<div class="row"><button class="ghost" id="alln" data-i="all"></button><button class="ghost" id="non" data-i="none"></button></div>
+<h3 data-i="bulkh"></h3>
+<div id="bulk"></div>
+<h3 data-i="detailsh"></h3>
+<div id="blocks"></div>
+</section>
+
+<section>
+<h2 data-i="h5"></h2>
+<div id="res"></div>
+</section>
+
+<section>
+<h2 data-i="h6"></h2>
+<div id="jr" class="scroll"></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const I={
+ar:{dir:'rtl',loc:'ar',
+ st:['تركيب','زجاج','ضبط','استلام','حجز الضمان'],sep:'، ',
+ title:'وضعية المقاول (S-TRAITANT)',
+ sub:'الكميات من ورقة realiser، والأسعار والمراحل والتفعيل تُدخل هنا.',
+ h1:'1. الكميات من realiser',
+ hint1:'تُجلب الكميات تلقائيًا من Google Sheets عند فتح التطبيق. اضغط "تحديث" بعد أي تغيير في الورقة. اللصق أو رفع ملف بديل عند تعذّر الاتصال. الإعدادات والوضعيات تُحفظ على الخادم.',
+ fetch:'تحديث من Google Sheets',manual:'لصق يدوي أو رفع ملف (بديل)',parse:'تحليل',upload:'رفع ملف',
+ h2:'2. المشروع والمقاول',project:'المشروع',contractor:'المقاول',newc:'اسم مقاول جديد',add:'إضافة',delc:'حذف المقاول',
+ h3:'3. الأسعار والمراحل',prices:'أسعار الأنواع (دج / قطعة، للمشروع)',pcts:'نسب المراحل (%) لهذا المقاول في هذا المشروع',
+ hintpct:'نسبة مرحلة retenue garantie هي نفسها نسبة الحجز، كما في ملف الإكسل: الحجز = هذه النسبة × القيمة الإجمالية للبلوكات (وليس الإنتاج)، ويُفرج عنه في البلوك الذي تُفعَّل فيه هذه المرحلة.',
+ h4:'4. البلوكات والمراحل والعناصر',
+ hint4:'اضغط أرقام البلوكات التي ركّبها هذا المقاول. النقطة الحمراء تعني أن البلوك مسجل عند مقاول آخر، والبلوك الباهت لا كميات فيه بعد.',
+ all:'تحديد الكل',none:'إلغاء الكل',bulkh:'تعيين المراحل دفعة واحدة',detailsh:'تفاصيل البلوكات المحددة',
+ h5:'5. النتيجة',h6:'6. الوضعيات المحفوظة',
+ noData:'لا توجد بيانات',addC:'أضف مقاولًا',pick:'اختر مشروعًا ومقاولًا.',
+ tot100:'المجموع 100% ✓',totBad:'المجموع {x}% (يجب أن يكون 100)',
+ with:'مع ',block:'بلوك',prodW:'الإنتاج',ofW:'من',noEl:'لا عناصر منجزة',
+ bulkApply:'تطبيق على كل بلوكاتي ({n})',noBlocks:'لم تحدد أي بلوك بعد.',
+ sitNo:'الوضعية رقم',dated:'مؤرخة في',value100:'قيمة الأشغال 100% (البلوكات المفعّلة)',
+ cumProd:'الإنتاج المتراكم',cumRet:'الحجز المتراكم',prevCum:'المتراكم السابق (إنتاج / حجز)',
+ curProd:'إنتاج الوضعية الحالية',curRet:'حجز الوضعية الحالية',net:'الصافي المستحق لهذه الوضعية (TTC)',
+ save:'إدخال: حفظ الوضعية',saveHint:'بعد الحفظ تُخصم هذه الوضعية من الوضعية القادمة تلقائيًا.',
+ sit:'وضعية',del:'حذف',netW:'الصافي',totNet:'مجموع الصافي لكل الوضعيات',
+ noJr:'لا توجد وضعيات محفوظة لهذا المشروع والمقاول.',
+ loading:'جارٍ تحميل البيانات...',updating:'جارٍ التحديث...',updated:'تم التحديث ({n} مشروع)',
+ found:'تم التعرف على {n} مشروع.',nobloc:'لم أجد جدولًا يبدأ بعمود BLOC.',
+ gasOnly:'هذا الزر يعمل داخل تطبيق Apps Script فقط. استعمل اللصق.',fetchFail:'تعذّر الجلب: ',
+ delCq:'حذف المقاول {c} مع إعداداته؟ (الوضعيات المحفوظة تبقى)',delJq:'حذف هذه الوضعية؟ ستتغير الوضعيات اللاحقة.',
+ hApi:'إعدادات الاتصال بالخادم',apiUrl:'رابط تطبيق الويب (Apps Script /exec)',apiToken:'رمز الدخول (اختياري، يطابق APP_TOKEN في السكربت)',apiSave:'حفظ الإعدادات',
+ apiHint:'يُستعمل هذا الرابط عند تشغيل الصفحة خارج Apps Script، مثل تطبيق APK أو موقع GitHub Pages.',
+ noUrl:'أدخل رابط الخادم في إعدادات الاتصال.',saveFail:'تعذّر الحفظ على الخادم (محفوظ على هذا الجهاز فقط).',
+ titleFa:'فوترة الشركة (FACTURATION)',h2Fa:'2. المشروع',pickFa:'اختر مشروعًا.',pctsFa:'نسب المراحل (%) في هذا المشروع',
+ hint4Fa:'اضغط أرقام البلوكات المراد فوترتها. البلوك الباهت لا كميات فيه بعد.',noJrFa:'لا توجد وضعيات محفوظة لهذا المشروع.'},
+fr:{dir:'ltr',loc:'fr',
+ st:['MONTAGE','VITRAGE','RÉGLAGE','RÉCEPTION','RETENUE DE GARANTIE'],sep:', ',
+ title:'Situation du sous-traitant (S-TRAITANT)',
+ sub:'Les quantités viennent de la feuille realiser ; les prix, phases et activations se saisissent ici.',
+ h1:'1. Quantités (realiser)',
+ hint1:'Les quantités sont récupérées automatiquement depuis Google Sheets à l’ouverture. Appuyez sur « Actualiser » après toute modification de la feuille. Le collage ou l’import d’un fichier sert de secours en cas d’échec de connexion. Les paramètres et les situations sont enregistrés sur le serveur.',
+ fetch:'Actualiser depuis Google Sheets',manual:'Collage manuel ou import de fichier (secours)',parse:'Analyser',upload:'Importer un fichier',
+ h2:'2. Projet et sous-traitant',project:'Projet',contractor:'Sous-traitant',newc:'Nom du nouveau sous-traitant',add:'Ajouter',delc:'Supprimer le sous-traitant',
+ h3:'3. Prix et phases',prices:'Prix par type (DA / pièce, par projet)',pcts:'Pourcentages des phases (%) pour ce sous-traitant dans ce projet',
+ hintpct:'Le pourcentage de la phase « retenue de garantie » est le même que celui de la retenue, comme dans le fichier Excel : retenue = ce pourcentage × valeur totale des blocs (et non la production), libérée dans le bloc où cette phase est activée.',
+ h4:'4. Blocs, phases et éléments',
+ hint4:'Touchez les numéros des blocs posés par ce sous-traitant. Le point rouge indique un bloc déjà attribué à un autre sous-traitant ; un bloc estompé n’a encore aucune quantité.',
+ all:'Tout sélectionner',none:'Tout désélectionner',bulkh:'Affecter les phases en une fois',detailsh:'Détails des blocs sélectionnés',
+ h5:'5. Résultat',h6:'6. Situations enregistrées',
+ noData:'Aucune donnée',addC:'Ajoutez un sous-traitant',pick:'Choisissez un projet et un sous-traitant.',
+ tot100:'Total 100 % ✓',totBad:'Total {x} % (doit être 100)',
+ with:'Avec ',block:'Bloc',prodW:'Production',ofW:'sur',noEl:'Aucun élément réalisé',
+ bulkApply:'Appliquer à tous mes blocs ({n})',noBlocks:'Aucun bloc sélectionné pour l’instant.',
+ sitNo:'Situation n°',dated:'Datée du',value100:'Valeur des travaux à 100 % (blocs activés)',
+ cumProd:'Production cumulée',cumRet:'Retenue cumulée',prevCum:'Cumul précédent (production / retenue)',
+ curProd:'Production de la situation actuelle',curRet:'Retenue de la situation actuelle',net:'Net à payer pour cette situation (TTC)',
+ save:'Enregistrer la situation',saveHint:'Après l’enregistrement, cette situation est déduite automatiquement de la suivante.',
+ sit:'Situation',del:'Supprimer',netW:'Net',totNet:'Total net de toutes les situations',
+ noJr:'Aucune situation enregistrée pour ce projet et ce sous-traitant.',
+ loading:'Chargement des données...',updating:'Actualisation...',updated:'Mis à jour ({n} projet(s))',
+ found:'{n} projet(s) reconnu(s).',nobloc:'Aucun tableau commençant par la colonne BLOC.',
+ gasOnly:'Ce bouton ne fonctionne que dans l’application Apps Script. Utilisez le collage.',fetchFail:'Échec de la récupération : ',
+ delCq:'Supprimer le sous-traitant {c} et ses paramètres ? (Les situations enregistrées sont conservées)',delJq:'Supprimer cette situation ? Les situations suivantes seront modifiées.',
+ hApi:'Paramètres de connexion au serveur',apiUrl:'URL de l’application web (Apps Script /exec)',apiToken:'Code d’accès (facultatif, identique à APP_TOKEN dans le script)',apiSave:'Enregistrer les paramètres',
+ apiHint:'Cette URL est utilisée lorsque la page tourne hors d’Apps Script, par exemple dans une application APK ou sur GitHub Pages.',
+ noUrl:'Saisissez l’URL du serveur dans les paramètres de connexion.',saveFail:'Échec de l’enregistrement sur le serveur (sauvegardé uniquement sur cet appareil).',
+ titleFa:'Facturation de l’entreprise (FACTURATION)',h2Fa:'2. Projet',pickFa:'Choisissez un projet.',pctsFa:'Pourcentages des phases (%) dans ce projet',
+ hint4Fa:'Touchez les numéros des blocs à facturer. Un bloc estompé n’a encore aucune quantité.',noJrFa:'Aucune situation enregistrée pour ce projet.'},
+tr:{dir:'ltr',loc:'tr',
+ st:['MONTAJ','CAM','AYAR','TESLİM','TEMİNAT KESİNTİSİ'],sep:', ',
+ title:'Taşeron hakedişi (S-TRAITANT)',
+ sub:'Miktarlar realiser sayfasından gelir; fiyatlar, aşamalar ve etkinleştirme burada girilir.',
+ h1:'1. Miktarlar (realiser)',
+ hint1:'Miktarlar uygulama açılırken Google Sheets’ten otomatik alınır. Sayfada değişiklik yaptıktan sonra “Yenile”ye basın. Bağlantı kurulamazsa yapıştırma veya dosya yükleme alternatif olarak kullanılır. Ayarlar ve hakedişler sunucuda saklanır.',
+ fetch:'Google Sheets’ten yenile',manual:'Elle yapıştır veya dosya yükle (alternatif)',parse:'Çözümle',upload:'Dosya yükle',
+ h2:'2. Proje ve taşeron',project:'Proje',contractor:'Taşeron',newc:'Yeni taşeron adı',add:'Ekle',delc:'Taşeronu sil',
+ h3:'3. Fiyatlar ve aşamalar',prices:'Tür fiyatları (DA / adet, proje bazında)',pcts:'Bu taşeronun bu projedeki aşama yüzdeleri (%)',
+ hintpct:'“Teminat kesintisi” aşamasının yüzdesi, Excel dosyasındaki gibi kesinti oranıyla aynıdır: kesinti = bu oran × blokların toplam değeri (üretim değil); bu aşamanın etkinleştirildiği blokta serbest bırakılır.',
+ h4:'4. Bloklar, aşamalar ve kalemler',
+ hint4:'Bu taşeronun monte ettiği blokların numaralarına dokunun. Kırmızı nokta bloğun başka bir taşerona kayıtlı olduğunu, soluk blok ise henüz miktar girilmediğini gösterir.',
+ all:'Tümünü seç',none:'Seçimi kaldır',bulkh:'Aşamaları toplu ata',detailsh:'Seçili blokların ayrıntıları',
+ h5:'5. Sonuç',h6:'6. Kayıtlı hakedişler',
+ noData:'Veri yok',addC:'Taşeron ekleyin',pick:'Bir proje ve taşeron seçin.',
+ tot100:'Toplam %100 ✓',totBad:'Toplam %{x} (100 olmalı)',
+ with:'Birlikte: ',block:'Blok',prodW:'Üretim',ofW:'/',noEl:'Gerçekleşen kalem yok',
+ bulkApply:'Tüm bloklarıma uygula ({n})',noBlocks:'Henüz blok seçilmedi.',
+ sitNo:'Hakediş no',dated:'Tarih',value100:'İş değeri %100 (etkin bloklar)',
+ cumProd:'Kümülatif üretim',cumRet:'Kümülatif kesinti',prevCum:'Önceki kümülatif (üretim / kesinti)',
+ curProd:'Bu hakedişin üretimi',curRet:'Bu hakedişin kesintisi',net:'Bu hakediş için ödenecek net (KDV dahil)',
+ save:'Hakedişi kaydet',saveHint:'Kayıttan sonra bu hakediş, bir sonrakinden otomatik olarak düşülür.',
+ sit:'Hakediş',del:'Sil',netW:'Net',totNet:'Tüm hakedişlerin net toplamı',
+ noJr:'Bu proje ve taşeron için kayıtlı hakediş yok.',
+ loading:'Veriler yükleniyor...',updating:'Yenileniyor...',updated:'Güncellendi ({n} proje)',
+ found:'{n} proje bulundu.',nobloc:'BLOC sütunuyla başlayan tablo bulunamadı.',
+ gasOnly:'Bu düğme yalnızca Apps Script uygulamasında çalışır. Yapıştırmayı kullanın.',fetchFail:'Alınamadı: ',
+ delCq:'{c} taşeronu ve ayarları silinsin mi? (Kayıtlı hakedişler kalır)',delJq:'Bu hakediş silinsin mi? Sonraki hakedişler değişecek.',
+ hApi:'Sunucu bağlantı ayarları',apiUrl:'Web uygulaması bağlantısı (Apps Script /exec)',apiToken:'Erişim kodu (isteğe bağlı, betikteki APP_TOKEN ile aynı)',apiSave:'Ayarları kaydet',
+ apiHint:'Bu bağlantı, sayfa Apps Script dışında çalışırken kullanılır; örneğin APK uygulaması veya GitHub Pages.',
+ noUrl:'Bağlantı ayarlarına sunucu bağlantısını girin.',saveFail:'Sunucuya kaydedilemedi (yalnızca bu cihazda saklandı).',
+ titleFa:'Şirket faturalandırması (FACTURATION)',h2Fa:'2. Proje',pickFa:'Bir proje seçin.',pctsFa:'Bu projedeki aşama yüzdeleri (%)',
+ hint4Fa:'Faturalanacak blokların numaralarına dokunun. Soluk blokta henüz miktar yok.',noJrFa:'Bu proje için kayıtlı hakediş yok.'}
+};
+// نصوص كلمة المرور
+Object.assign(I.ar,{askPass:'أدخل كلمة المرور',badPass:'كلمة المرور خاطئة',passFail:'تعذّر التحقق من كلمة المرور',ok:'موافق',cancel:'إلغاء'});
+Object.assign(I.fr,{askPass:'Entrez le mot de passe',badPass:'Mot de passe incorrect',passFail:'Impossible de vérifier le mot de passe',ok:'OK',cancel:'Annuler'});
+Object.assign(I.tr,{askPass:'Şifreyi girin',badPass:'Şifre yanlış',passFail:'Şifre doğrulanamadı',ok:'Tamam',cancel:'İptal'});
+let LANG='ar';
+try{const l=localStorage.getItem('st_lang');if(I[l])LANG=l}catch(e){}
+let TAB='st';
+try{const t0=localStorage.getItem('st_tab');if(t0==='fa'||t0==='st')TAB=t0}catch(e){}
+const tx=(k,a)=>{let s=I[LANG][k];if(s==null)s=I.ar[k];if(a)for(const x in a)s=s.replace('{'+x+'}',a[x]);return s};
+const stN=()=>I[LANG].st;
+const pk=()=>tx(TAB==='fa'?'pickFa':'pick');
+let SF=null;
+const setSt=(cls,fn)=>{SF=fn;const e=$('#status');e.className='msg '+cls;e.textContent=fn()};
+
+const ST=[0,1,2,3,4];
+const newS=()=>({raw:'',contractors:[],project:'',contractor:'',prices:{},cfg:{},journal:[]});
+const R={st:newS(),fa:newS()};
+R.fa.contractors=['FACT'];R.fa.contractor='FACT';
+let S=R[TAB];
+let BSM={};
+let P=[];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fq=n=>(n||0).toLocaleString('fr-FR',{maximumFractionDigits:2});
+const num=v=>{const x=parseFloat(String(v||'').replace(/\s/g,'').replace(',','.'));return isNaN(x)?0:x};
+const GAS=typeof google!=='undefined'&&google.script&&google.script.run;
+const DEFAULT_URL='https://script.google.com/macros/s/AKfycbwtiAK3cr7oaCkLBkCBH280O-OOAznY5t4Ey4seecE5kMYUzuXbmHL-MfK3rqTLFAv1/exec';
+const CFG={url:DEFAULT_URL,token:''};
+try{const d=JSON.parse(localStorage.getItem('st_api')||'null');if(d){CFG.url=d.url||'';CFG.token=d.token||''}}catch(e){}
+const REMOTE=()=>!!(GAS||CFG.url);
+const gas=(fn,...a)=>new Promise((ok,no)=>google.script.run.withSuccessHandler(ok).withFailureHandler(no)[fn](...a));
+const web=(action,extra)=>fetch(CFG.url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,token:CFG.token},extra||{}))}).then(r=>r.json()).then(j=>{if(!j||!j.ok)throw new Error((j&&j.error)||'error');return j.data});
+const BK={
+ getRealiser:()=>GAS?gas('getRealiser'):web('getRealiser'),
+ loadState:()=>GAS?gas('loadState'):web('loadState'),
+ saveState:j=>GAS?gas('saveState',j):web('saveState',{state:j}),
+ checkPass:(p,ctx)=>GAS?gas('checkPass',p,ctx||{}):web('checkPass',{pass:p,ctx:ctx||{}})};
+// طلب كلمة المرور والتحقق منها على الخادم
+function askPass(msg,ctx){
+ return new Promise(res=>{
+  const ov=document.createElement('div');ov.className='ov';
+  ov.innerHTML=`<div class="dlg" role="dialog" aria-modal="true"><p>${msg?esc(msg)+'<br>':''}${esc(tx('askPass'))}</p><input type="password" id="pwi" dir="ltr" autocomplete="off"><p class="msg err" id="pwe" hidden></p><div class="row"><button id="pwok">${esc(tx('ok'))}</button><button class="ghost" id="pwno">${esc(tx('cancel'))}</button></div></div>`;
+  document.body.appendChild(ov);
+  const inp=ov.querySelector('#pwi'),err=ov.querySelector('#pwe');
+  const done=v=>{ov.remove();res(v)};
+  const go=async()=>{
+   const p=inp.value.trim();if(!p)return;
+   err.hidden=true;
+   try{const ok=await BK.checkPass(p,ctx);
+    if(ok)done(true);else{err.textContent=tx('badPass');err.hidden=false;inp.select()}}
+   catch(e){err.textContent=tx('passFail');err.hidden=false}};
+  ov.querySelector('#pwok').onclick=go;
+  ov.querySelector('#pwno').onclick=()=>done(false);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();if(e.key==='Escape')done(false)});
+  setTimeout(()=>inp.focus(),50)})}
+let _t=null;
+function save(){
+ try{localStorage.setItem('soustraitant_v3',JSON.stringify(R))}catch(e){}
+ if(REMOTE()){clearTimeout(_t);_t=setTimeout(()=>{const c={st:Object.assign({},R.st),fa:Object.assign({},R.fa)};delete c.st.raw;delete c.fa.raw;BK.saveState(JSON.stringify(c)).catch(()=>setSt('err',()=>tx('saveFail')))},700)}}
+// دمج حالة محفوظة: الصيغة الجديدة {st,fa}، أو القديمة المسطحة (تُنقل إلى soustraitant)
+function ingest(d){
+ if(!d||typeof d!=='object')return;
+ if(d.st||d.fa){if(d.st)Object.assign(R.st,d.st);if(d.fa)Object.assign(R.fa,d.fa)}
+ else Object.assign(R.st,d);
+ delete R.st.url;delete R.st.token;
+ R.fa.contractors=['FACT'];R.fa.contractor='FACT';
+ S=R[TAB]}
+function setTab(t){
+ if(t!=='st'&&t!=='fa')return;
+ BSM[TAB]=BS;TAB=t;BS=BSM[t]||[1,0,0,0,0];S=R[t];
+ try{localStorage.setItem('st_tab',t)}catch(e){}
+ applyLang();renderAll()}
+function load(){try{const d=JSON.parse(localStorage.getItem('soustraitant_v3')||localStorage.getItem('soustraitant_v2')||'null');ingest(d)}catch(e){}}
+
+function applyLang(){
+ const L=I[LANG];
+ document.documentElement.lang=L.loc;document.documentElement.dir=L.dir;
+ document.title='S-TRAITANT';
+ document.querySelectorAll('[data-i]').forEach(e=>{e.textContent=tx((TAB==='fa'&&e.dataset.iFa)||e.dataset.i)});
+ document.querySelectorAll('.tab').forEach(b=>{const on=b.dataset.tab===TAB;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+ ['#ctrlbl','#cname','#cadd','#cdel'].forEach(s=>{$(s).hidden=TAB==='fa'});
+ document.querySelectorAll('[data-ip]').forEach(e=>{e.placeholder=tx(e.dataset.ip)});
+ document.querySelectorAll('.lg').forEach(b=>{const on=b.dataset.lang===LANG;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
+function setLang(l){if(!I[l])return;LANG=l;try{localStorage.setItem('st_lang',l)}catch(e){}
+ applyLang();renderAll();if(SF)$('#status').textContent=SF()}
+
+function parseRows(t){const d=t.includes('\t')?'\t':',';const rows=[];let r=[],c='',q=false;
+for(let i=0;i<t.length;i++){const ch=t[i];
+ if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}
+ else if(ch=='"')q=true;
+ else if(ch==d){r.push(c);c=''}
+ else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);rows.push(r);r=[];c=''}
+ else c+=ch}
+r.push(c);rows.push(r);return rows}
+function parseProjects(t){const R=parseRows(t).map(r=>r.map(x=>(x||'').trim()));const out=[];
+for(let i=0;i<R.length;i++){
+ if((R[i][0]||'').toUpperCase()!=='BLOC')continue;
+ const h=R[i],prev=R[i-1]||[],dr=R[i+1]||[],types=[];
+ h.forEach((x,k)=>{if(k>=2&&x)types.push({k,code:x,dims:dr[k]||''})});
+ const blocks=[];let j=i+2;
+ for(;j<R.length;j++){const r=R[j],f=(r[0]||'').toUpperCase();
+  if(!f||f==='TOTAL'||f==='BLOC')break;
+  const qty={};let any=0;types.forEach(t=>{const v=num(r[t.k]);qty[t.code]=v;any+=v});
+  blocks.push({id:r[0],qty,any})}
+ const pf=(prev[0]||'').toUpperCase();
+ out.push({code:prev[0]&&pf!=='TOTAL'?prev[0]:'P'+(out.length+1),title:prev[1]||'',types,blocks});i=j}
+return out}
+
+const proj=()=>P.find(p=>p.code===S.project);
+function cfg(pc,c){const k=pc+'|'+c;return S.cfg[k]||(S.cfg[k]={pct:[40,20,15,20,5],blocks:{}})}
+function bs(g,id){return g.blocks[id]||(g.blocks[id]={on:false,st:[1,0,0,0,0],off:[]})}
+const prevOf=(pc,c)=>S.journal.filter(j=>j.p===pc&&j.c===c).sort((a,b)=>a.n-b.n).pop();
+
+function calc(p,c){
+ const g=cfg(p.code,c),pct=g.pct.map(x=>(+x||0)/100);let value=0,prod=0,held=0;const rows=[];
+ p.blocks.forEach(b=>{const s=g.blocks[b.id];if(!s||!s.on)return;
+  let v=0;p.types.forEach(t=>{if(!s.off.includes(t.code))v+=(b.qty[t.code]||0)*(+S.prices[t.code]||0)});
+  const f=s.st.reduce((a,x,i)=>a+(x?pct[i]:0),0),pr=v*f;
+  value+=v;prod+=pr;if(!s.st[4])held+=v;rows.push({id:b.id,v,f,pr})});
+ const ret=pct[4]*held;
+ return {value,prod,ret,rows}}
+
+function renderTop(){
+ $('#proj').innerHTML=P.map(p=>`<option value="${esc(p.code)}" ${p.code===S.project?'selected':''}>${esc(p.code)}</option>`).join('')||`<option>${tx('noData')}</option>`;
+ $('#ctr').innerHTML=S.contractors.map(c=>`<option ${c===S.contractor?'selected':''}>${esc(c)}</option>`).join('')||`<option value="">${tx('addC')}</option>`}
+
+function renderCfg(){
+ const p=proj(),c=S.contractor;
+ if(!p||!c){$('#prices').innerHTML=`<p class="msg">${pk()}</p>`;$('#pcts').innerHTML='';$('#pctchk').textContent='';return}
+ $('#prices').innerHTML=p.types.map(t=>`<label class="pr"><span>${esc(t.code)}<br><small dir="ltr">${esc(t.dims)}</small></span><input type="number" inputmode="decimal" min="0" step="any" data-price="${esc(t.code)}" value="${S.prices[t.code]||''}"></label>`).join('');
+ const g=cfg(p.code,c);
+ $('#pcts').innerHTML=stN().map((s,i)=>`<label class="pr"><span>${esc(s)}</span><input type="number" inputmode="decimal" min="0" step="any" data-pct="${i}" value="${g.pct[i]}"></label>`).join('');
+ pctChk()}
+function pctChk(){const p=proj();if(!p||!S.contractor)return;const t=cfg(p.code,S.contractor).pct.reduce((a,x)=>a+(+x||0),0);
+ const okk=Math.abs(t-100)<1e-6;
+ $('#pctchk').textContent=okk?tx('tot100'):tx('totBad',{x:fq(t)});$('#pctchk').className='msg '+(okk?'ok':'err')}
+
+let BS=[1,0,0,0,0];
+function renderBlocks(){
+ const p=proj(),c=S.contractor;
+ if(!p||!c){$('#grid').innerHTML=`<p class="msg">${pk()}</p>`;$('#bulk').innerHTML='';$('#blocks').innerHTML='';return}
+ const g=cfg(p.code,c),r=calc(p,c),rm={};r.rows.forEach(x=>rm[x.id]=x);
+ const N=stN();
+ const others=b=>S.contractors.filter(o=>o!==c&&((S.cfg[p.code+'|'+o]||{blocks:{}}).blocks[b.id]||{}).on);
+ $('#grid').innerHTML=p.blocks.map(b=>{const s=g.blocks[b.id],on=!!(s&&s.on),o=others(b);
+  return `<button class="bt${on?' on':''}${b.any?'':' emp'}" data-bt="${esc(b.id)}" aria-pressed="${on}" title="${o.length?esc(tx('with')+o.join(tx('sep'))):''}">${esc(b.id)}${o.length?'<i></i>':''}</button>`}).join('');
+ const sel=p.blocks.filter(b=>g.blocks[b.id]&&g.blocks[b.id].on);
+ $('#bulk').innerHTML=`<div class="chips">${N.map((n,i)=>`<button class="chip${BS[i]?' on':''}" data-bst="${i}" aria-pressed="${!!BS[i]}">${esc(n)}</button>`).join('')}</div><button class="ghost" id="bapply">${tx('bulkApply',{n:sel.length})}</button>`;
+ $('#blocks').innerHTML=sel.length?sel.map(b=>{const s=g.blocks[b.id],x=rm[b.id]||{v:0,pr:0};
+  return `<div class="bc"><div class="bh"><b>${tx('block')} ${esc(b.id)}</b><span class="msg">${tx('prodW')} <b class="n">${fmt(x.pr)}</b> ${tx('ofW')} <span class="n">${fmt(x.v)}</span></span></div>
+  <div class="chips">${N.map((n,i)=>`<button class="chip${s.st[i]?' on':''}" data-stb="${esc(b.id)}|${i}" aria-pressed="${!!s.st[i]}">${esc(n)}</button>`).join('')}</div>
+  <div class="chips">${p.types.filter(t=>b.qty[t.code]).map(t=>{const on=!s.off.includes(t.code);return `<button class="chip${on?' on':''}" data-elb="${esc(b.id)}|${esc(t.code)}" aria-pressed="${on}">${esc(t.code.split('-').pop())} ×${fq(b.qty[t.code])}</button>`}).join('')||`<span class="msg">${tx('noEl')}</span>`}</div></div>`}).join(''):`<p class="msg">${tx('noBlocks')}</p>`}
+
+function renderRes(){
+ const p=proj(),c=S.contractor;
+ if(!p||!c){$('#res').innerHTML=`<p class="msg">${pk()}</p>`;return}
+ const r=calc(p,c),pv=prevOf(p.code,c)||{cumProd:0,cumRet:0,n:0},
+  cp=r.prod-pv.cumProd,net=cp;
+ const dv=($('#sdate')&&$('#sdate').value)||new Date().toISOString().slice(0,10);
+ $('#res').innerHTML=`<div class="row"><label>${tx('sitNo')} <b>${pv.n+1}</b></label><label>${tx('dated')} <input type="date" id="sdate" value="${dv}"></label></div>
+ <div class="cards"><div class="card"><small>${tx('value100')}</small><b>${fmt(r.value)}</b></div>
+ <div class="card"><small>${tx('cumProd')}</small><b>${fmt(r.prod)}</b></div>
+ <div class="card"><small>${tx('cumRet')}</small><b>${fmt(r.ret)}</b></div>
+ <div class="card"><small>${tx('prevCum')}</small><b>${fmt(pv.cumProd)} / ${fmt(pv.cumRet)}</b></div></div>
+ <div class="cards"><div class="card"><small>${tx('curProd')}</small><b>${fmt(cp)}</b></div>
+ <div class="card big"><small>${tx('net')}</small><b class="${net<0?'err':''}">${fmt(net)} DA</b></div></div>
+ <div class="row"><button id="save">${tx('save')}</button><span class="msg">${tx('saveHint')}</span></div>`}
+
+function renderJr(){
+ const p=proj(),c=S.contractor;
+ const L=S.journal.filter(j=>j.p===(p&&p.code)&&j.c===c).sort((a,b)=>a.n-b.n);
+ $('#jr').innerHTML=L.length?L.map(j=>`<div class="jc"><div class="bh"><b>${tx('sit')} ${j.n}</b><span class="msg">${esc(j.d)}</span><button class="del" data-jd="${j.id}">${tx('del')}</button></div>
+ <div class="kv"><span>${tx('cumProd')}</span><b class="n">${fmt(j.cumProd)}</b></div>
+ <div class="kv"><span>${tx('cumRet')}</span><b class="n">${fmt(j.cumRet)}</b></div>
+ <div class="kv"><span>${tx('curProd')}</span><b class="n">${fmt(j.prod)}</b></div>
+ <div class="kv"><span><b>${tx('netW')}</b></span><b class="n">${fmt(j.net)}</b></div></div>`).join('')+`<div class="card big"><small>${tx('totNet')}</small><b>${fmt(L.reduce((a,j)=>a+j.net,0))} DA</b></div>`:`<p class="msg">${tx(TAB==='fa'?'noJrFa':'noJr')}</p>`}
+
+function renderAll(){renderTop();renderCfg();renderBlocks();renderRes();renderJr()}
+function refresh(){renderBlocks();renderRes()}
+
+function doParse(){const raw=$('#raw').value;R.st.raw=R.fa.raw=raw;P=parseProjects(raw);
+ [R.st,R.fa].forEach(x=>{if(P.length&&!P.find(p=>p.code===x.project))x.project=P[0].code});
+ save();
+ if(P.length){const n=P.length;setSt('ok',()=>tx('found',{n}))}else setSt('err',()=>tx('nobloc'));
+ renderAll()}
+$('#parse').onclick=doParse;
+const toText=v=>v.map(row=>row.map(c=>/["\t\n]/.test(c)?'"'+String(c).replace(/"/g,'""')+'"':c).join('\t')).join('\n');
+function fetchData(){
+ if(!REMOTE()){setSt('err',()=>tx('noUrl'));return}
+ setSt('',()=>tx('updating'));
+ BK.getRealiser().then(v=>{window._lf=Date.now();$('#raw').value=toText(v);doParse();if(P.length){const n=P.length,tm=new Date().toLocaleTimeString('fr-FR');setSt('ok',()=>tx('updated',{n})+' '+tm)}})
+  .catch(e=>{const m=(e&&e.message)||e;setSt('err',()=>tx('fetchFail')+m)})}
+$('#fetchbtn').onclick=fetchData;
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&REMOTE()&&Date.now()-(window._lf||0)>60000)fetchData()});
+
+$('#pick').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#raw').value=r.result;doParse()};r.readAsText(f)};
+$('#proj').onchange=e=>{S.project=e.target.value;save();renderAll()};
+$('#ctr').onchange=e=>{S.contractor=e.target.value;save();renderAll()};
+$('#cadd').onclick=()=>{const v=$('#cname').value.trim();if(!v||S.contractors.includes(v))return;S.contractors.push(v);S.contractor=v;$('#cname').value='';save();renderAll()};
+$('#cdel').onclick=()=>{const c=S.contractor;if(!c||!confirm(tx('delCq',{c})))return;S.contractors=S.contractors.filter(x=>x!==c);Object.keys(S.cfg).forEach(k=>{if(k.endsWith('|'+c))delete S.cfg[k]});S.contractor=S.contractors[0]||'';save();renderAll()};
+
+document.addEventListener('input',e=>{const t=e.target,p=proj(),c=S.contractor;
+ if(t.dataset.price!==undefined){S.prices[t.dataset.price]=num(t.value);save();refresh()}
+ if(t.dataset.pct!==undefined&&p&&c){cfg(p.code,c).pct[+t.dataset.pct]=num(t.value);save();pctChk();refresh()}});
+document.addEventListener('click',e=>{const t=e.target.closest('button,input')||e.target,p=proj(),c=S.contractor;
+ if(t.dataset&&t.dataset.lang){setLang(t.dataset.lang);return}
+ if(t.dataset&&t.dataset.tab){setTab(t.dataset.tab);return}
+ if(p&&c){const g=cfg(p.code,c);let hit=true;
+  if(t.dataset.bt!==undefined){const k=bs(g,t.dataset.bt);k.on=!k.on}
+  else if(t.dataset.stb!==undefined){const[i,k]=t.dataset.stb.split('|'),b=bs(g,i);b.st[+k]=b.st[+k]?0:1}
+  else if(t.dataset.elb!==undefined){const[i,code]=t.dataset.elb.split('|'),b=bs(g,i);b.off=b.off.includes(code)?b.off.filter(x=>x!==code):b.off.concat(code)}
+  else if(t.dataset.bst!==undefined){BS[+t.dataset.bst]=BS[+t.dataset.bst]?0:1;renderBlocks();hit=false}
+  else if(t.id==='bapply'){p.blocks.forEach(b=>{const k=g.blocks[b.id];if(k&&k.on)k.st=BS.slice()})}
+  else if(t.id==='alln'){p.blocks.forEach(b=>{bs(g,b.id).on=true})}
+  else if(t.id==='non'){p.blocks.forEach(b=>{if(g.blocks[b.id])g.blocks[b.id].on=false})}
+  else hit=false;
+  if(hit){save();refresh()}}
+ if(t.id==='save'&&p&&c){const r0=calc(p,c),pv0=prevOf(p.code,c)||{cumProd:0,n:0};
+  askPass('',{a:'SAVE',t:TAB,p:p.code,c,n:pv0.n+1,m:r0.prod-pv0.cumProd}).then(ok=>{if(!ok)return;
+  const r=calc(p,c),pv=prevOf(p.code,c)||{cumProd:0,cumRet:0,n:0},cp=r.prod-pv.cumProd;
+  S.journal.push({id:Date.now(),p:p.code,c,n:pv.n+1,d:$('#sdate').value,cumProd:r.prod,cumRet:r.ret,prod:cp,net:cp});save();renderRes();renderJr()})}
+ if(t.dataset&&t.dataset.jd){const jid=t.dataset.jd,jj=S.journal.find(j=>String(j.id)===jid)||{};
+  askPass(tx('delJq'),{a:'DELETE',t:TAB,p:jj.p,c:jj.c,n:jj.n,m:jj.net}).then(ok=>{if(!ok)return;S.journal=S.journal.filter(j=>String(j.id)!==jid);save();renderRes();renderJr()})}});
+
+function afterLoad(){const raw=R.st.raw||R.fa.raw||'';$('#raw').value=raw;if(raw)P=parseProjects(raw);
+ [R.st,R.fa].forEach(x=>{if(!x.contractor&&x.contractors.length)x.contractor=x.contractors[0];if(P.length&&!P.find(p=>p.code===x.project))x.project=P[0].code});
+ S=R[TAB];applyLang();renderAll()}
+applyLang();
+load();
+$('#apisec').hidden=!!GAS;
+$('#apiurl').value=CFG.url;$('#apitok').value=CFG.token;
+$('#apisave').onclick=()=>{CFG.url=$('#apiurl').value.trim();CFG.token=$('#apitok').value.trim();try{localStorage.setItem('st_api',JSON.stringify(CFG))}catch(e){}initRemote()};
+function initRemote(){
+ if(!REMOTE()){afterLoad();setSt('err',()=>tx('noUrl'));return}
+ setSt('',()=>tx('loading'));
+ BK.loadState().then(t=>{try{if(t)ingest(JSON.parse(t))}catch(e){}afterLoad();fetchData()})
+  .catch(()=>{afterLoad();fetchData()})}
+initRemote();
+</script>
+</body>
+</html>
